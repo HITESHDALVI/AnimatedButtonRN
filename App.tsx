@@ -1,65 +1,51 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
 import {
+  Animated,
+  Dimensions,
+  Easing,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TouchableWithoutFeedback,
   View,
+  useColorScheme,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const animatedValue = new Animated.Value(0);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+  const buttonScale = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 5],
+  });
+
+  const onPressIn = () => {
+    Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 250,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(animatedValue, {
+      toValue: 0,
+      duration: 100,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animatedScaleStyle = {
+    transform: [{translateX: buttonScale}, {translateY: buttonScale}],
   };
 
   return (
@@ -68,51 +54,55 @@ function App(): React.JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+      <View style={[styles.wrapper]}>
+        <TouchableWithoutFeedback onPressIn={onPressIn} onPressOut={onPressOut}>
+          <Animated.View style={[styles.button, animatedScaleStyle]}>
+            <Text style={[styles.buttonText]}>Submit</Text>
+          </Animated.View>
+        </TouchableWithoutFeedback>
+        <View style={[styles.backgroundShadow]}></View>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  shadowProp: {
+    shadowOffset: {width: 6, height: 6},
+    shadowColor: '#171717',
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    shadowColor: 'black',
+    elevation: 20,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  wrapper: {
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  backgroundShadow: {
+    height: 55,
+    width: Dimensions.get('window').width - 52,
+    backgroundColor: 'black',
+    alignSelf: 'center',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: '-12%',
+    marginLeft: '2.5%',
+    zIndex: -1,
   },
-  highlight: {
-    fontWeight: '700',
+  button: {
+    height: 55,
+    width: Dimensions.get('window').width - 50,
+    backgroundColor: '#40E0D0',
+    alignSelf: 'center',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  buttonText: {color: 'white', fontSize: 22, fontWeight: '600'},
 });
 
 export default App;
