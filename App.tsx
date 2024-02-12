@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Animated,
   Dimensions,
@@ -18,6 +18,10 @@ function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const animatedValue = new Animated.Value(0);
 
+  const animatedValueRetry = new Animated.Value(0);
+
+  const animatedValueRotate = new Animated.Value(0);
+
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
@@ -25,6 +29,17 @@ function App(): React.JSX.Element {
     inputRange: [0, 1],
     outputRange: [0, 5],
   });
+
+  const buttonRetry = animatedValueRetry.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0],
+  });
+
+  const buttonRotate = animatedValueRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '-900deg'],
+  });
+  const [rotateView, setRotateView] = useState(false);
 
   const onPressIn = () => {
     Animated.timing(animatedValue, {
@@ -48,6 +63,58 @@ function App(): React.JSX.Element {
     transform: [{translateX: buttonScale}, {translateY: buttonScale}],
   };
 
+  const animatedRetry = {
+    transform: [
+      {
+        scale: buttonRetry,
+      },
+    ],
+  };
+  const animatedRotate = {
+    transform: [
+      {
+        rotate: buttonRotate,
+      },
+    ],
+  };
+  const onPressInRetry = () => {
+    Animated.timing(animatedValueRetry, {
+      toValue: 0.1,
+      duration: 250,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOutRetry = () => {
+    Animated.timing(animatedValueRetry, {
+      toValue: 0,
+      duration: 100,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressInRotate = () => {
+    // setRotateView(true);
+    Animated.timing(animatedValueRotate, {
+      toValue: 0.1,
+      duration: 250,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOutRotate = () => {
+    Animated.timing(animatedValueRotate, {
+      toValue: 0,
+      duration: 100,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+    // setRotateView(false);
+  };
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -61,6 +128,41 @@ function App(): React.JSX.Element {
           </Animated.View>
         </TouchableWithoutFeedback>
         <View style={[styles.backgroundShadow]}></View>
+
+        <View style={{marginVertical: '5%'}}>
+          <TouchableWithoutFeedback
+            onPressIn={onPressInRetry}
+            onPressOut={onPressOutRetry}>
+            <Animated.View
+              style={[styles.button, animatedRetry, styles.shadowProp]}>
+              <Text style={[styles.buttonText]}>Retry</Text>
+            </Animated.View>
+          </TouchableWithoutFeedback>
+        </View>
+
+        <View style={{marginVertical: '5%'}}>
+          <TouchableWithoutFeedback
+            onPressIn={onPressInRotate}
+            onPressOut={onPressOutRotate}>
+            <Animated.View
+              style={[
+                {
+                  width: 60,
+                  height: 60,
+                  backgroundColor: 'orange',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 6,
+                },
+                animatedRotate,
+                // styles.shadowProp,
+              ]}>
+              <Text style={[styles.buttonText, {fontSize: 28}]}>
+                {rotateView ? 'x' : '+'}
+              </Text>
+            </Animated.View>
+          </TouchableWithoutFeedback>
+        </View>
       </View>
     </SafeAreaView>
   );
